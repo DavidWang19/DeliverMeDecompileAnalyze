@@ -5,6 +5,7 @@
     using System.IO;
     using UnityEngine;
 
+    //剧情回顾管理器，就是鼠标滚轮往上滚出现的那个
     [AddComponentMenu("Utage/ADV/Internal/BacklogManager")]
     public class AdvBacklogManager : MonoBehaviour, IAdvSaveData, IBinaryIO
     {

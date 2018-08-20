@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
 
+    //自定义指令解析类
     public class UtagCustomCommand : AdvCustomCommandManager
     {
         [CompilerGenerated]

@@ -9,6 +9,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using Utage;
 
+//行动管理器，就是六重养成部分的主界面
 public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
 {
     public Transform actionButtonParent;
@@ -48,6 +49,7 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
     public string yundong2;
     public string yundong3;
 
+    //似乎所有按钮都绑定的一个事件，根据触发按钮名响应不同的功能
     private void ActionButtonClick(string actionButtonName)
     {
         if (actionButtonName == "外出")
@@ -137,6 +139,7 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         }
     }
 
+    //判断actionButtonName名字的按钮能否显示
     private bool CanShowAction(string actionButtonName)
     {
         switch (this.stageNo)
@@ -177,6 +180,7 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         return false;
     }
 
+    //判断paramName名字的数值能否显示
     private bool CanShowParam(string paramName)
     {
         switch (this.stageNo)
@@ -213,6 +217,7 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         return false;
     }
 
+    //退出行动面板，一般在点击按钮开始执行日常时调用
     private void ExitActionPanel()
     {
         ShortcutExtensions46.DOFade(this.actionCanvas, 0f, 0.5f);
@@ -236,8 +241,10 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         this.stageNo = reader.ReadInt32();
         this.weekend = reader.ReadBoolean();
         AdvEngine component = GameObject.Find("AdvEngine").GetComponent<AdvEngine>();
+        //如果存档时行动主界面是激活的
         if (this.active)
         {
+        	//显示行动主界面
             this.ShowActionPanel(component, this.stageNo, this.weekend, true);
         }
     }
@@ -250,6 +257,7 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         writer.Write(this.weekend);
     }
 
+    //显示按钮
     private void ShowActionButtons()
     {
         IEnumerator enumerator = this.actionButtonParent.GetEnumerator();
@@ -285,6 +293,7 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         }
     }
 
+    //显示行动面板
     public void ShowActionPanel(AdvEngine advEngine, int stage, bool isWeekend = false, bool onRead = false)
     {
         this.active = true;
@@ -300,6 +309,7 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         base.get_transform().Find("arr2").get_gameObject().SetActive(this.stageNo == 2);
     }
 
+    //显示数值
     private void ShowParams()
     {
         IEnumerator enumerator = this.paramParent.GetEnumerator();

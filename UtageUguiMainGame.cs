@@ -33,9 +33,11 @@ public class UtageUguiMainGame : UguiView
     private void Awake()
     {
         this.Engine.Page.OnEndText.AddListener(new UnityAction<AdvPage>(this, (IntPtr) this.<Awake>m__0));
+        //初始化时将菜单取消激活
         this.buttons.SetActive(false);
     }
 
+    //截取游戏画面
     private Texture2D CaptureScreen()
     {
         Rect rect = this.LetterBoxCamera.CachedCamera.get_rect();
@@ -46,6 +48,7 @@ public class UtageUguiMainGame : UguiView
         return UtageToolKit.CaptureScreenFromLetterBoxCameras(this.CaptureCameras, new Rect((float) num, (float) num2, (float) num3, (float) num4));
     }
 
+    //到保存点时调用，自动截图并保存至AutoSave
     private void CaptureScreenOnSavePoint(AdvPage page)
     {
         if ((this.Engine.SaveManager.Type == AdvSaveManager.SaveType.SavePoint) && page.IsSavePoint)
@@ -93,15 +96,21 @@ public class UtageUguiMainGame : UguiView
         return new <CoWaitOpen>c__Iterator0 { $this = this };
     }
 
+    //根据active显示隐藏右侧菜单
     private void DisplayMainMenu(bool active)
     {
+    	//如果菜单激活状态和显示激活状态不同
         if (active != this._active)
         {
+        	//如果菜单按钮不在激活状态
             if (!this.buttons.get_activeSelf())
             {
+            	//将菜单按钮激活
                 this.buttons.SetActive(true);
             }
+            //num表示移动方向，如果转为未激活为-1，即隐藏菜单
             float num = !active ? -1f : 1f;
+            //num2表示移动速度，如果转变激活状态为1，否则为0（不显示动画）
             int num2 = !active ? 1 : 0;
             this.buttons.GetComponent<Animator>().Play("MainMenuMovement", 0, (float) num2);
             this.buttons.GetComponent<Animator>().SetFloat("speed", num);

@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Utage;
 
+//自定义管理器，推测是六重养成特殊界面的管理器
 public class IMManager : MonoBehaviour, IAdvSaveData, IBinaryIO
 {
     public static bool active;
