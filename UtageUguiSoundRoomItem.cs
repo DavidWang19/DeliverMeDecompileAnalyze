@@ -20,6 +20,19 @@ public class UtageUguiSoundRoomItem : MonoBehaviour
         this.data = data;
         this.title.set_text(data.Title);
         base.GetComponent<Button>().get_onClick().AddListener(new UnityAction(storey, (IntPtr) this.<>m__0));
+        this.Stop();
+    }
+
+    public void Play()
+    {
+        base.get_transform().Find("play").get_gameObject().SetActive(false);
+        base.get_transform().Find("playing").get_gameObject().SetActive(true);
+    }
+
+    public void Stop()
+    {
+        base.get_transform().Find("play").get_gameObject().SetActive(true);
+        base.get_transform().Find("playing").get_gameObject().SetActive(false);
     }
 
     public AdvSoundSettingData Data

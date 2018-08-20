@@ -126,42 +126,30 @@ public class MapManager : MonoBehaviour, IAdvSaveData, IBinaryIO
             mapDataName = mapDataName.Substring(0, 2) + "/" + mapDataName;
         }
         string[][] arrayCollection = MyTool.ParseTSV(MyTool.LoadText("MapData/" + mapDataName));
-        List<string> list = new List<string>(MyTool.GetArrayByFirstElement(arrayCollection, "Area"));
+        string[] arrayByFirstElement = MyTool.GetArrayByFirstElement(arrayCollection, "Area");
+        int index = MyTool.ParseInt(MyTool.GetArrayByFirstElement(arrayCollection, "Mode")[2], 1) - 1;
+        List<string> list = new List<string>(arrayByFirstElement);
         foreach (Button button in this.areaButtons)
         {
             bool flag = false;
-            string[] arrayByFirstElement = new string[0];
+            string[] strArray3 = new string[0];
             if (list.Contains(button.get_gameObject().get_name()))
             {
                 flag = true;
-                arrayByFirstElement = MyTool.GetArrayByFirstElement(arrayCollection, button.get_gameObject().get_name());
+                strArray3 = MyTool.GetArrayByFirstElement(arrayCollection, button.get_gameObject().get_name());
             }
             button.get_gameObject().SetActive(flag);
             if (flag)
             {
                 <ShowMap>c__AnonStorey0 storey = new <ShowMap>c__AnonStorey0 {
                     $this = this,
-                    clickLable = arrayByFirstElement[1]
+                    clickLable = strArray3[1]
                 };
                 button.get_onClick().RemoveAllListeners();
                 button.get_onClick().AddListener(new UnityAction(storey, (IntPtr) this.<>m__0));
-                Image[] componentsInChildren = button.GetComponentsInChildren<Image>();
-                componentsInChildren[1].set_enabled(false);
-                componentsInChildren[2].set_enabled(false);
-                if (arrayByFirstElement.Length > 2)
-                {
-                    componentsInChildren[1].set_sprite(this.GetAvatarByName(arrayByFirstElement[2]));
-                    componentsInChildren[1].set_enabled(true);
-                }
-                if (arrayByFirstElement.Length > 3)
-                {
-                    componentsInChildren[2].set_sprite(this.GetAvatarByName(arrayByFirstElement[3]));
-                    componentsInChildren[2].set_enabled(true);
-                }
             }
         }
         bool flag2 = MyTool.GetArrayByFirstElement(arrayCollection, "Mode")[1] == "school";
-        int index = MyTool.ParseInt(MyTool.GetArrayByFirstElement(arrayCollection, "Mode")[2], 1) - 1;
         index = Mathf.Clamp(index, 0, this.schoolTextures.Length - 1);
         this.schoolImage.set_texture(this.schoolTextures[index]);
         this.cityImage.set_texture(this.cityTextures[index]);
@@ -185,6 +173,25 @@ public class MapManager : MonoBehaviour, IAdvSaveData, IBinaryIO
     {
         this.schoolMap.SetActive(true);
         this.cityMap.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (this.shown)
+        {
+            foreach (Button button in this.areaButtons)
+            {
+                if (button.get_gameObject().get_activeSelf())
+                {
+                    ButtonEx ex = button as ButtonEx;
+                    GameObject obj2 = ex.get_transform().Find("flag").get_gameObject();
+                    if (ex.IsHover != obj2.get_activeSelf())
+                    {
+                        obj2.SetActive(ex.IsHover);
+                    }
+                }
+            }
+        }
     }
 
     public string SaveKey

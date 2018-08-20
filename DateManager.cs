@@ -9,43 +9,46 @@ public class DateManager : MonoBehaviour, IAdvSaveData, IBinaryIO
 {
     private bool active;
     public CanvasGroup dateCanvas;
-    public Text dateText;
+    public Text Day;
+    public Text DayOfWeek;
+    public Text Month;
 
-    private string FormatDate(DateTime date)
+    private void FormatDate(DateTime date)
     {
         string str = string.Empty;
         switch (date.DayOfWeek)
         {
-            case DayOfWeek.Sunday:
+            case System.DayOfWeek.Sunday:
                 str = "周日";
                 break;
 
-            case DayOfWeek.Monday:
+            case System.DayOfWeek.Monday:
                 str = "周一";
                 break;
 
-            case DayOfWeek.Tuesday:
+            case System.DayOfWeek.Tuesday:
                 str = "周二";
                 break;
 
-            case DayOfWeek.Wednesday:
+            case System.DayOfWeek.Wednesday:
                 str = "周三";
                 break;
 
-            case DayOfWeek.Thursday:
+            case System.DayOfWeek.Thursday:
                 str = "周四";
                 break;
 
-            case DayOfWeek.Friday:
+            case System.DayOfWeek.Friday:
                 str = "周五";
                 break;
 
-            case DayOfWeek.Saturday:
+            case System.DayOfWeek.Saturday:
                 str = "周六";
                 break;
         }
-        object[] objArray1 = new object[] { date.Month, "/", date.Day, " ", str };
-        return string.Concat(objArray1);
+        this.DayOfWeek.set_text(str);
+        this.Month.set_text(date.Month.ToString());
+        this.Day.set_text("/" + date.Day);
     }
 
     public void HideDate()
@@ -93,9 +96,9 @@ public class DateManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         {
             time = new DateTime(0x7dc, 5, 20).AddDays((double) parameterInt);
         }
-        engine.Param.SetParameterBoolean("weekday", (time.DayOfWeek != DayOfWeek.Sunday) && (time.DayOfWeek != DayOfWeek.Saturday));
+        engine.Param.SetParameterBoolean("weekday", (time.DayOfWeek != System.DayOfWeek.Sunday) && (time.DayOfWeek != System.DayOfWeek.Saturday));
         engine.Param.SetParameterInt("dayOfWeek", (int) time.DayOfWeek);
-        this.dateText.set_text(this.FormatDate(time));
+        this.FormatDate(time);
     }
 
     public string SaveKey

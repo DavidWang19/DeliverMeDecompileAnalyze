@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 using Utage;
 
 public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
@@ -25,6 +26,8 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
     [Tooltip("Order must be same as paramLables")]
     public string[] paramNames;
     public Transform paramParent;
+    [Tooltip("Just for display")]
+    public string[] paramSubLables;
     [Header("Stage2")]
     public string shuxiyinyue2;
     private int stageNo;
@@ -179,25 +182,29 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         switch (this.stageNo)
         {
             case 1:
-                if ((this.engine.Param.GetParameterInt("六重阶段") != 4) || (!(paramName == "成绩") && !(paramName == "体力")))
+                if (this.engine.Param.GetParameterInt("六重阶段") != 4)
                 {
-                    if ((!(paramName == "语文") && !(paramName == "数学")) && ((!(paramName == "外语") && !(paramName == "综合")) && !(paramName == "体力")))
+                    if (((!(paramName == "语文") && !(paramName == "数学")) && (!(paramName == "外语") && !(paramName == "综合"))) && (!(paramName == "体质") && !(paramName == "疲劳")))
                     {
                         return false;
                     }
                     return true;
                 }
+                if ((!(paramName == "成绩") && !(paramName == "体质")) && !(paramName == "疲劳"))
+                {
+                    return false;
+                }
                 return true;
 
             case 2:
-                if (((!(paramName == "语文") && !(paramName == "数学")) && (!(paramName == "外语") && !(paramName == "综合"))) && (!(paramName == "体力") && !(paramName == "音乐")))
+                if (((!(paramName == "语文") && !(paramName == "数学")) && (!(paramName == "外语") && !(paramName == "综合"))) && ((!(paramName == "体质") && !(paramName == "疲劳")) && !(paramName == "音乐")))
                 {
                     return false;
                 }
                 return true;
 
             case 3:
-                if (((!(paramName == "成绩") && !(paramName == "乐理")) && (!(paramName == "唱功") && !(paramName == "演奏"))) && ((!(paramName == "审美") && !(paramName == "舞台")) && (!(paramName == "熟练") && !(paramName == "体力"))))
+                if (((!(paramName == "成绩") && !(paramName == "乐理")) && (!(paramName == "唱功") && !(paramName == "演奏"))) && ((!(paramName == "审美") && !(paramName == "舞台")) && ((!(paramName == "熟练") && !(paramName == "体质")) && !(paramName == "疲劳"))))
                 {
                     return false;
                 }
@@ -250,7 +257,8 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         {
             while (enumerator.MoveNext())
             {
-                Object.Destroy(((Transform) enumerator.Current).get_gameObject());
+                Transform current = (Transform) enumerator.Current;
+                current.get_gameObject().SetActive(false);
             }
         }
         finally
@@ -266,12 +274,13 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
             if (this.CanShowAction(this.actionButtonPrefabs[i].get_name()))
             {
                 <ShowActionButtons>c__AnonStorey0 storey = new <ShowActionButtons>c__AnonStorey0 {
-                    $this = this
+                    $this = this,
+                    temp = this.actionButtonPrefabs[i].get_name()
                 };
-                GameObject obj2 = Object.Instantiate<GameObject>(this.actionButtonPrefabs[i], this.actionButtonParent, false);
-                obj2.GetComponent<Button>().get_onClick().RemoveAllListeners();
-                storey.temp = this.actionButtonPrefabs[i].get_name();
-                obj2.GetComponent<Button>().get_onClick().AddListener(new UnityAction(storey, (IntPtr) this.<>m__0));
+                Button component = this.actionButtonParent.Find(storey.temp).GetComponent<Button>();
+                component.get_gameObject().SetActive(true);
+                component.get_onClick().RemoveAllListeners();
+                component.get_onClick().AddListener(new UnityAction(storey, (IntPtr) this.<>m__0));
             }
         }
     }
@@ -287,6 +296,8 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
         this.engine.Param.TrySetParameter("actionGoMap", false);
         this.ShowParams();
         this.ShowActionButtons();
+        base.get_transform().Find("arr1").get_gameObject().SetActive(this.stageNo != 2);
+        base.get_transform().Find("arr2").get_gameObject().SetActive(this.stageNo == 2);
     }
 
     private void ShowParams()
@@ -307,13 +318,20 @@ public class ActionManager : MonoBehaviour, IAdvSaveData, IBinaryIO
                 disposable.Dispose();
             }
         }
+        int num = 0;
         for (int i = 0; i < this.paramLables.Length; i++)
         {
             if (this.CanShowParam(this.paramNames[i]))
             {
-                Object.Instantiate<GameObject>(this.paramEntryPrefab, this.paramParent, false).GetComponent<Text>().set_text(this.paramLables[i] + ": " + ((int) this.engine.Param.GetParameter(this.paramNames[i])));
+                GameObject obj2 = Object.Instantiate<GameObject>(this.paramEntryPrefab, this.paramParent, false);
+                obj2.GetComponent<Text>().set_text(this.paramLables[i]);
+                obj2.get_transform().Find("SubTitle").GetComponent<Text>().set_text(this.paramSubLables[i]);
+                obj2.get_transform().Find("Score").GetComponent<Text>().set_text(this.engine.Param.GetParameter(this.paramNames[i]).ToString());
+                num++;
             }
         }
+        RectTransform component = base.get_transform().Find("ParamPanel").GetComponent<RectTransform>();
+        component.set_sizeDelta(new Vector2(component.get_rect().get_width(), (float) (140 + (num * 70))));
     }
 
     public string SaveKey

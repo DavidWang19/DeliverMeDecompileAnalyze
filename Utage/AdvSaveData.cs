@@ -106,6 +106,7 @@
             this.Texture = tex;
             this.FileVersion = autoSave.FileVersion;
             this.Title = autoSave.Title;
+            this.Title = engine.MessageWindowManager.CurrentWindow.Text.OriginalText.Substring(0, engine.MessageWindowManager.CurrentWindow.Text.OriginalText.Length / 2);
         }
 
         public void UpdateAutoSaveData(AdvEngine engine, Texture2D tex, List<IBinaryIO> customSaveIoList, List<IBinaryIO> saveIoList)

@@ -5,11 +5,14 @@ using Utage;
 [AddComponentMenu("Utage/TemplateUI/Gallery")]
 public class UtageUguiGallery : UguiView
 {
+    [SerializeField]
+    private AdvEngine engine;
     private int tabIndex = -1;
     public UguiView[] views;
 
     private void OnOpen()
     {
+        this.Engine.SoundManager.StopAll(0.2f);
         if (this.tabIndex >= 0)
         {
             this.views[this.tabIndex].ToggleOpen(true);
@@ -44,6 +47,17 @@ public class UtageUguiGallery : UguiView
     public void WakeUp()
     {
         base.get_gameObject().SetActive(true);
+    }
+
+    public AdvEngine Engine
+    {
+        get
+        {
+            if (this.engine == null)
+            {
+            }
+            return (this.engine = Object.FindObjectOfType<AdvEngine>());
+        }
     }
 }
 

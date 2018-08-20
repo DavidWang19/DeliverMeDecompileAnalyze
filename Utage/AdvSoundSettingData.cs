@@ -7,6 +7,8 @@
     public class AdvSoundSettingData : AdvSettingDictinoayItemBase, IAssetFileSoundSettingData, IAssetFileSettingData
     {
         [CompilerGenerated, DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private float <CategoryIndex>k__BackingField;
+        [CompilerGenerated, DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string <FilePath>k__BackingField;
         [CompilerGenerated, DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private float <IntroTime>k__BackingField;
@@ -57,6 +59,8 @@
             this.Volume = AdvParser.ParseCellOptional<float>(row, AdvColumnName.Volume, 1f);
             return true;
         }
+
+        public float CategoryIndex { get; set; }
 
         public string FilePath { get; private set; }
 

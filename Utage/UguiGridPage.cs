@@ -73,7 +73,7 @@
             {
                 this.pageCarouselToggles.ClearToggles();
                 this.pageCarouselAlignGroup.DestroyAllChildren();
-                if (this.MaxPage > 0)
+                if ((this.MaxPage > 0) && (this.pageCarouselPrefab.Count > 0))
                 {
                     foreach (GameObject obj2 in this.pageCarouselAlignGroup.AddChildrenFromPrefab(this.MaxPage + 1, this.pageCarouselPrefab, null))
                     {

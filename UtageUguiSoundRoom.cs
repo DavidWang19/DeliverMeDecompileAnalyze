@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Utage;
 
 [AddComponentMenu("Utage/TemplateUI/SoundRoom")]
 public class UtageUguiSoundRoom : UguiView
 {
+    [FormerlySerializedAs("categoryGirdPage")]
+    public UguiCategoryGridPage categoryGridPage;
     [SerializeField]
     private AdvEngine engine;
     [SerializeField]
@@ -17,6 +20,8 @@ public class UtageUguiSoundRoom : UguiView
     private bool isInit;
     private List<AdvSoundSettingData> itemDataList = new List<AdvSoundSettingData>();
     public UguiListView listView;
+    private readonly int perPageCount = 20;
+    private UtageUguiSoundRoomItem playingItem;
 
     private void CallBackCreateItem(GameObject go, int index)
     {
@@ -41,6 +46,7 @@ public class UtageUguiSoundRoom : UguiView
     {
         this.isInit = false;
         this.listView.ClearItems();
+        this.categoryGridPage.Clear();
         if (this.isChangedBgm)
         {
             this.Engine.SoundManager.StopAll(0.2f);
@@ -53,6 +59,7 @@ public class UtageUguiSoundRoom : UguiView
         this.isInit = false;
         this.isChangedBgm = false;
         this.listView.ClearItems();
+        this.categoryGridPage.Clear();
         base.StartCoroutine(this.CoWaitOpen());
     }
 
@@ -60,7 +67,24 @@ public class UtageUguiSoundRoom : UguiView
     {
         AdvSoundSettingData data = item.Data;
         string path = this.Engine.DataManager.SettingDataManager.SoundSetting.LabelToFilePath(data.Key, SoundType.Bgm);
+        if (this.playingItem != null)
+        {
+            this.playingItem.Stop();
+        }
+        this.playingItem = item;
+        this.playingItem.Play();
         base.StartCoroutine(this.CoPlaySound(path));
+    }
+
+    private void OpenCurrentCategory(UguiCategoryGridPage categoryGridPage)
+    {
+        this.itemDataList = this.Engine.DataManager.SettingDataManager.SoundSetting.GetSoundRoomList();
+        int currentIndex = categoryGridPage.categoryToggleGroup.CurrentIndex;
+        int index = this.perPageCount * currentIndex;
+        int num3 = this.itemDataList.Count - index;
+        int count = (num3 < this.perPageCount) ? num3 : this.perPageCount;
+        this.itemDataList = this.itemDataList.GetRange(index, count);
+        categoryGridPage.OpenCurrentCategory(this.itemDataList.Count, new Action<GameObject, int>(this.CallBackCreateItem));
     }
 
     private void Update()
@@ -175,6 +199,8 @@ public class UtageUguiSoundRoom : UguiView
         internal bool $disposing;
         internal int $PC;
         internal UtageUguiSoundRoom $this;
+        internal List<string> <soundRoomListTitles>__0;
+        internal int <titilesCount>__0;
 
         [DebuggerHidden]
         public void Dispose()
@@ -201,7 +227,17 @@ public class UtageUguiSoundRoom : UguiView
                         return true;
                     }
                     this.$this.itemDataList = this.$this.Engine.DataManager.SettingDataManager.SoundSetting.GetSoundRoomList();
-                    this.$this.listView.CreateItems(this.$this.itemDataList.Count, new Action<GameObject, int>(this.$this.CallBackCreateItem));
+                    this.<soundRoomListTitles>__0 = new List<string>();
+                    this.<titilesCount>__0 = (this.$this.itemDataList.Count / this.$this.perPageCount) + 1;
+                    for (int i = 0; i < this.<titilesCount>__0; i++)
+                    {
+                        int num3 = i;
+                        int num4 = this.$this.perPageCount * num3;
+                        int num5 = this.$this.itemDataList.Count - num4;
+                        int num6 = (num5 < this.$this.perPageCount) ? num5 : this.$this.perPageCount;
+                        this.<soundRoomListTitles>__0.Add((((i * this.$this.perPageCount) + 1)).ToString() + "~" + (((i * this.$this.perPageCount) + num6)).ToString());
+                    }
+                    this.$this.categoryGridPage.Init(this.<soundRoomListTitles>__0.ToArray(), new Action<UguiCategoryGridPage>(this.$this.OpenCurrentCategory));
                     this.$this.isInit = true;
                     this.$PC = -1;
                     break;

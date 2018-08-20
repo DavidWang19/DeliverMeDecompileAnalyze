@@ -8,9 +8,12 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using Utage;
 
+//游戏剧情主界面
 [AddComponentMenu("Utage/TemplateUI/MainGame")]
 public class UtageUguiMainGame : UguiView
 {
+    private bool _active;
+    private Camera[] _captureCameras;
     private BootType bootType;
     public GameObject buttons;
     public Toggle checkAuto;
@@ -20,7 +23,6 @@ public class UtageUguiMainGame : UguiView
     private AdvEngine engine;
     public UtageUguiGallery gallery;
     private bool isInit;
-    private float lastSpeed;
     [SerializeField]
     private Utage.LetterBoxCamera letterBoxCamera;
     private AdvSaveData loadData;
@@ -31,6 +33,7 @@ public class UtageUguiMainGame : UguiView
     private void Awake()
     {
         this.Engine.Page.OnEndText.AddListener(new UnityAction<AdvPage>(this, (IntPtr) this.<Awake>m__0));
+        this.buttons.SetActive(false);
     }
 
     private Texture2D CaptureScreen()
@@ -40,7 +43,7 @@ public class UtageUguiMainGame : UguiView
         int num2 = Mathf.CeilToInt(rect.get_y() * Screen.get_height());
         int num3 = Mathf.FloorToInt(rect.get_width() * Screen.get_width());
         int num4 = Mathf.FloorToInt(rect.get_height() * Screen.get_height());
-        return UtageToolKit.CaptureScreen(new Rect((float) num, (float) num2, (float) num3, (float) num4));
+        return UtageToolKit.CaptureScreenFromLetterBoxCameras(this.CaptureCameras, new Rect((float) num, (float) num2, (float) num3, (float) num4));
     }
 
     private void CaptureScreenOnSavePoint(AdvPage page)
@@ -90,17 +93,26 @@ public class UtageUguiMainGame : UguiView
         return new <CoWaitOpen>c__Iterator0 { $this = this };
     }
 
-    private void LateUpdate()
+    private void DisplayMainMenu(bool active)
     {
-        bool flag = this.Engine.UiManager.IsShowingMenuButton && (this.Engine.UiManager.Status == AdvUiManager.UiStatus.Menu);
-        float num = !flag ? -1f : 1f;
-        int num2 = !flag ? 1 : 0;
-        if (this.lastSpeed != num)
+        if (active != this._active)
         {
+            if (!this.buttons.get_activeSelf())
+            {
+                this.buttons.SetActive(true);
+            }
+            float num = !active ? -1f : 1f;
+            int num2 = !active ? 1 : 0;
             this.buttons.GetComponent<Animator>().Play("MainMenuMovement", 0, (float) num2);
             this.buttons.GetComponent<Animator>().SetFloat("speed", num);
-            this.lastSpeed = num;
+            this._active = active;
         }
+    }
+
+    private void LateUpdate()
+    {
+        bool active = this.Engine.UiManager.IsShowingMenuButton && (this.Engine.UiManager.Status == AdvUiManager.UiStatus.Menu);
+        this.DisplayMainMenu(active);
         if ((this.checkSkip != null) && (this.checkSkip.get_isOn() != this.Engine.Config.IsSkip))
         {
             this.checkSkip.set_isOn(this.Engine.Config.IsSkip);
@@ -229,6 +241,32 @@ public class UtageUguiMainGame : UguiView
                     this.title.Open(this);
                 }
             }
+        }
+    }
+
+    private Camera[] CaptureCameras
+    {
+        get
+        {
+            if (this._captureCameras == null)
+            {
+                Camera cachedCamera = null;
+                Camera camera2 = null;
+                foreach (Utage.LetterBoxCamera camera3 in Object.FindObjectsOfType<Utage.LetterBoxCamera>())
+                {
+                    if (camera3.get_gameObject().get_name() == "SpriteCamera")
+                    {
+                        cachedCamera = camera3.CachedCamera;
+                    }
+                    else if (camera3.get_gameObject().get_name() == "UICamera")
+                    {
+                        camera2 = camera3.CachedCamera;
+                    }
+                }
+                Camera[] cameraArray3 = new Camera[] { cachedCamera, camera2 };
+                this._captureCameras = cameraArray3;
+            }
+            return this._captureCameras;
         }
     }
 
@@ -414,10 +452,7 @@ public class UtageUguiMainGame : UguiView
             switch (num)
             {
                 case 0:
-                    if (this.$this.Engine.SaveManager.Type == AdvSaveManager.SaveType.SavePoint)
-                    {
-                        break;
-                    }
+                    this.$this.Engine.SaveManager.CaptureTexture = this.$this.CaptureScreen();
                     this.$current = new WaitForEndOfFrame();
                     if (!this.$disposing)
                     {
@@ -426,16 +461,11 @@ public class UtageUguiMainGame : UguiView
                     return true;
 
                 case 1:
-                    this.$this.Engine.SaveManager.CaptureTexture = this.$this.CaptureScreen();
+                    this.$this.Close();
+                    this.$this.saveLoad.OpenSave(this.$this);
+                    this.$PC = -1;
                     break;
-
-                default:
-                    goto Label_00A3;
             }
-            this.$this.Close();
-            this.$this.saveLoad.OpenSave(this.$this);
-            this.$PC = -1;
-        Label_00A3:
             return false;
         }
 

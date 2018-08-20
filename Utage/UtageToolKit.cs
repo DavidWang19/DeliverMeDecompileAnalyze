@@ -145,6 +145,27 @@
             return textured;
         }
 
+        public static Texture2D CaptureScreenFromLetterBoxCameras(Camera[] cameras, Rect rect)
+        {
+            RenderTexture texture = new RenderTexture(((int) rect.get_width()) + 1, ((int) rect.get_height()) + 1, 0);
+            foreach (Camera camera in cameras)
+            {
+                camera.set_targetTexture(texture);
+                camera.Render();
+            }
+            RenderTexture.set_active(texture);
+            Texture2D textured = new Texture2D((int) rect.get_width(), (int) rect.get_height(), 3, false);
+            textured.ReadPixels(rect, 0, 0);
+            textured.Apply();
+            foreach (Camera camera2 in cameras)
+            {
+                camera2.set_targetTexture(null);
+            }
+            RenderTexture.set_active(null);
+            Object.Destroy(texture);
+            return textured;
+        }
+
         [Obsolete]
         public static void ChangeLayerAllChildren(Transform trans, int layer)
         {
